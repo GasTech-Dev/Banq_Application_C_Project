@@ -18,9 +18,20 @@ int main() {
 		scanf("%s", &nb_cb);
 		scanf("%s", &password);
 		create_account(&name, &surname, &nb_cb, &password);
-
 	}
-
+	else {
+		char name[100];
+		char password[100];
+		char id[100];
+		scanf("%s", &name);
+		scanf("%s", &password);
+		scanf("%s", &id);
+		int connect = 0;
+		connexion(&name, &password, &id, &connect);
+		if (connect == 1) {
+			printf("Conncter");
+		}
+	}
 	
 	return 0;
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "account.h"
 #include "cJSON.h"
+#include <string.h> 
 int create_account(char *name, char *id, char *argentdsp, char *password) {
 		// create a cJSON object 
 	cJSON* json = cJSON_CreateObject();
@@ -25,14 +26,46 @@ int create_account(char *name, char *id, char *argentdsp, char *password) {
 	cJSON_Delete(json);
 	return 0;
 }
-int connexion() {
-	FILE* na = NULL;
-	na = fopen("account.txt", "a+");
-	int caracter = 0;
-	do
-	{
-		caracter = fgetc(na);
-		printf("%c", caracter);
-	} while (caracter != EOF);
+
+int connexion(char *na, char *mdp, char *id, int *connect) {
+	// open the file 
+	char filename[100];
+	sprintf(filename, "%s.json", na);
+	FILE* fp = fopen(filename, "r");
+	if (fp == NULL) {
+		printf("Error: Unable to open the file.\n");
+		return 1;
+	}
+
+	// read the file contents into a string 
+	char buffer[1024];
+	int len = fread(buffer, 1, sizeof(buffer), fp);
+	fclose(fp);
+
+	// parse the JSON data 
+	cJSON* json = cJSON_Parse(buffer);
+	if (json == NULL) {
+		const char* error_ptr = cJSON_GetErrorPtr();
+		if (error_ptr != NULL) {
+			printf("Error: %s\n", error_ptr);
+		}
+		cJSON_Delete(json);
+		return 1;
+	}
+
+	// access the JSON data 
+	cJSON* password = cJSON_GetObjectItemCaseSensitive(json, "password");
+	cJSON* argent = cJSON_GetObjectItemCaseSensitive(json, "argent");
+	if (cJSON_IsString(password) && (password->valuestring != NULL)) {
+		printf("Argent disponible: %s\n", password->valuestring);
+		printf("%s\n", mdp);
+		if (strcmp(mdp, password->valuestring) == 0) {//strcmp permet de comparer 2 chaine de charactère
+			printf("ICI\n");
+			*connect = 1;
+		}
+	}
+
+	// delete the JSON object 
+	cJSON_Delete(json);
 	return 0;
 }
